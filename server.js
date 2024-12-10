@@ -16,6 +16,7 @@ app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 app.post("/send-email", async (req, res) => {
   const { user_name, user_email, user_contact, message, attachment } = req.body;
 
+  // Validate required fields
   if (!user_name || !user_email || !user_contact || !message) {
     return res.status(400).json({ message: "All fields are required." });
   }
@@ -33,18 +34,19 @@ app.post("/send-email", async (req, res) => {
       });
     }
 
+    // Create a transporter object using environment variables for sensitive information
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 587,
       secure: false,
       auth: {
-        user: "nitindube227@gmail.com", // Your email
-        pass: "rraqniyxpaflfhdk", // Your email password
+        user: process.env.EMAIL_USER, // Use environment variable for the email
+        pass: process.env.EMAIL_PASS, // Use environment variable for the email password
       },
     });
 
     const mailOptions = {
-      from: `"NR Choksi" "nitindube227@gmail.com"`,
+      from: `"NR Choksi" <${process.env.EMAIL_USER}>`, // Use environment variable
       to: user_email,
       subject: "Contact Form Details",
       text: message,
@@ -55,12 +57,13 @@ app.post("/send-email", async (req, res) => {
       attachments,
     };
 
+    // Send the email
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent: ", info.response);
     res.status(200).json({ message: "Email sent successfully!" });
   } catch (error) {
     console.error("Error sending email: ", error);
-    res.status(500).json({ message: "Failed to send email." });
+    res.status(500).json({ message: "Failed to send email.", error: error.message });
   }
 });
 
