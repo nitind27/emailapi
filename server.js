@@ -45,9 +45,10 @@ app.post("/send-email", async (req, res) => {
       },
     });
 
+    // Email to the recipient
     const mailOptions = {
-      from: `"NR Choksi" <${process.env.EMAIL_USER}>`, // Use environment variable
-      to: user_email,
+      from: `"NR Choksi" <${user_email}>`, // Use environment variable
+      to: process.env.EMAIL_USER,
       subject: "Contact Form Details",
       text: message,
       html: `<p><b>Name:</b> ${user_name}</p>
@@ -57,10 +58,26 @@ app.post("/send-email", async (req, res) => {
       attachments,
     };
 
-    // Send the email
+    // Send the primary email
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent: ", info.response);
-    res.status(200).json({ message: "Email sent successfully!" });
+
+    // Auto-reply email to the sender
+    const autoReplyOptions = {
+      from: `"NR Choksi" <${process.env.EMAIL_USER}>`,
+      to: user_email,
+      subject: "Thank You for Contacting Us!",
+      text: `Dear ${user_email},\n\nThank you for reaching out to us. We have received your message and will get back to you shortly.\n\nBest regards,\nNR Choksi Team`,
+      html: `<p>Dear ${user_email},</p>
+             <p>Thank you for reaching out to us. We have received your message and will get back to you shortly.</p>
+             <p>Best regards,<br>NR Choksi Team</p>`,
+    };
+
+    // Send the auto-reply email
+    await transporter.sendMail(autoReplyOptions);
+    console.log("Auto-reply email sent successfully.");
+
+    res.status(200).json({ message: "Emails sent successfully!" });
   } catch (error) {
     console.error("Error sending email: ", error);
     res.status(500).json({ message: "Failed to send email.", error: error.message });
