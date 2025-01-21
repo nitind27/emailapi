@@ -66,7 +66,7 @@ app.post("/send-email", async (req, res) => {
     const autoReplyOptions = {
       from: `"NR Choksi" <${process.env.EMAIL_USER}>`,
       to: user_email,
-      subject: "Thank You for Contacting Us!",
+      subject: "Thank You for Reaching Out to NR Choksi Jewels!",
       text: `Dear ${user_email},\n\nThank you for reaching out to us. We have received your message and will get back to you shortly.\n\nBest regards,\nNR Choksi Team`,
       html: `<p>Dear ${user_name},</p>
              <p>Thank you for contacting NR Choksi Jewels! We appreciate you taking the time to reach out to us.</p>
